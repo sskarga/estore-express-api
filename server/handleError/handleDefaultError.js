@@ -4,7 +4,7 @@ export default (err, req, res) => {
     return res.status(errorStatus).json({
         success: false,
         status: errorStatus,
-        message: err.message || "Something went wrong!",
+        message: err.message || "Что-то пошло не так!",
         details: err.details,
     });
 }

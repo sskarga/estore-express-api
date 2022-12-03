@@ -1,0 +1,6 @@
+# Link
+Идеальный инструмент для работы с СУБД без SQL для Node.js или Все, что вы хотели знать о Sequelize.
+
+- https://habr.com/ru/post/565062/
+- https://habr.com/ru/post/566036/
+- https://habr.com/ru/post/567912/
