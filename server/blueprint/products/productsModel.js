@@ -1,7 +1,7 @@
 import {DataTypes} from "sequelize";
 
 export default (sequelize) => {
-    sequelize.define('products', {
+    sequelize.define('Products', {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,

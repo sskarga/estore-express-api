@@ -41,7 +41,7 @@ export const checkAuthAndAccessByRoleMiddleware = function (roles) {
             }
             const decodedData = jwt.verify(token, config.JWT_SECRET);
             req.user = decodedData;
-            const role = decodedData.roles;
+            const role = decodedData.role;
             if (!roles.includes(role)) {
                 return res.status(403).json({
                     success: false,
@@ -77,7 +77,7 @@ export const checkAuthOrSkipMiddleware = function (req, res, next) {
 
     req.isGuest = typeof req.user === "undefined";
     if (!req.isGuest) {
-        req.user.isAdmin = req.user.roles === "Admin";
+        req.user.isAdmin = req.user.role === "Admin";
     } else {
         req.user.isAdmin = false;
     }

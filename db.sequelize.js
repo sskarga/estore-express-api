@@ -1,5 +1,7 @@
 import {Sequelize} from "sequelize";
 import config from "./config.js";
+
+// Import models
 import usersModel from "./server/blueprint/users/usersModel.js";
 import categoriesModel from "./server/blueprint/categories/categoriesModel.js";
 import productsModel from "./server/blueprint/products/productsModel.js";
@@ -36,20 +38,26 @@ ordersItemsModel(sequelize);
 ordersModel(sequelize)
 
 // Associations
-const { users, categories, products, orders, ordersItems} = sequelize.models;
+const {Users, Categories, Products, Orders, OrdersItems} = sequelize.models;
 
-categories.hasMany(products);  // categoriesModel <- productsModel
-products.belongsTo(categories); // add category_id to productsModel
+Categories.hasMany(Products);  // categoriesModel <- productsModel
+Products.belongsTo(Categories); // add category_id to productsModel
 
-orders.hasMany(ordersItems);
-ordersItems.belongsTo(orders);
+Orders.hasMany(OrdersItems);
+OrdersItems.belongsTo(Orders);
 
-users.hasMany(orders);
-orders.belongsTo(users);
-
+Users.hasMany(Orders);
+Orders.belongsTo(Users);
 
 // Sync
-sequelize.sync({alter: true})
+// sequelize.sync({alter: true})
+//     .then((result) => {
+//         console.info("Sync model");
+//         // console.log(result);
+//     })
+//     .catch((err) => console.log(err));
+
+sequelize.sync()
     .then((result) => {
         console.info("Sync model");
         // console.log(result);
