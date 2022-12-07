@@ -44,7 +44,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter }).single("image");
 
-router.post("", upload, (req, res) => {
+router.post("/uploads", upload, (req, res) => {
   let filedata = req.file;
 
   if (!filedata) {

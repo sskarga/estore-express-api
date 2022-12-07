@@ -1,18 +1,21 @@
 import sequelize from "../../../db.sequelize.js";
 import { apiError } from "../../handleError/apiError.js";
-import { isIntLimit } from "./../../utils/idValidation.js";
 
 const { Categories } = sequelize.models;
 
 export const getCategories = async (req, res, next) => {
   try {
-    let categories = await Categories.findAll({
+    const { count, rows } = await Products.findAndCountAll({
       order: [
         // Сортировка по заголовку
         ["title"],
       ],
     });
-    res.status(200).json(categories);
+    res.status(200).json({
+      success: true,
+      count,
+      data: rows,
+    });
   } catch (err) {
     next(err);
   }
@@ -21,12 +24,8 @@ export const getCategories = async (req, res, next) => {
 export const getCategoryById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (isIntLimit(id)) {
-      let category = (await Categories.findByPk(id)) || {};
-      res.status(200).json(category);
-    } else {
-      next(apiError(400, `Ошибка id: ${id}.`));
-    }
+    const category = (await Categories.findByPk(id)) || {};
+    res.status(200).json(category);
   } catch (err) {
     next(err);
   }
@@ -39,16 +38,15 @@ export const createCategory = async (req, res, next) => {
     });
 
     if (categoryCount > 0) {
-      res
+      return res
         .status(400)
         .json(
           apiError(
             400,
-            "Ошибка создания новой категории.",
+            "Ошибка добавление данных.",
             "Такая категория уже существует."
           )
         );
-      return;
     }
 
     const category = await Categories.create(req.body);
@@ -61,20 +59,50 @@ export const createCategory = async (req, res, next) => {
   }
 };
 
+export const updateCategory = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    req.body.id = id;
+
+    const categoryCount = await Categories.count({
+      where: { id },
+    });
+
+    if (categoryCount == 0) {
+      return res
+        .status(400)
+        .json(
+          apiError(
+            400,
+            "Ошибка обновления данных.",
+            "Такая категория еще не существует."
+          )
+        );
+    }
+
+    const categoriesId = await Categories.update(req.body, {
+      where: { id },
+    });
+
+    res.status(200).json({
+      success: true,
+      updateId: categoriesId,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteCategoryById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (isIntLimit(id)) {
-      let countDelete = await Categories.destroy({
-        where: { id },
-      });
-      res.status(200).json({
-        success: true,
-        delete: countDelete,
-      });
-    } else {
-      next(apiError(400, `Ошибка id: ${id}.`));
-    }
+    const countDelete = await Categories.destroy({
+      where: { id },
+    });
+    res.status(200).json({
+      success: true,
+      delete: countDelete,
+    });
   } catch (err) {
     next(err);
   }

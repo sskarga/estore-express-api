@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import config from "../../../config.js";
 import sequelize from "../../../db.sequelize.js";
+import bcrypt from "bcrypt";
 import { apiError } from "../../handleError/apiError.js";
 
 const { Users } = sequelize.models;
@@ -20,23 +20,21 @@ export const registration = async (req, res, next) => {
 
     // Проверка email
     if (usersCount > 0) {
-      next(
-        apiError(
-          400,
-          "Ошибка регистрации.",
-          "Пользователь с таким email уже существует."
-        )
-      );
-      return;
+      return res
+        .status(400)
+        .json(
+          apiError(
+            400,
+            "Ошибка регистрации.",
+            "Пользователь с таким email уже существует."
+          )
+        );
     }
 
     // Регистрация нового пользователя
-    const salt = bcrypt.genSaltSync(10);
-    const hashPassword = bcrypt.hashSync(password, salt);
-
     const newUser = await Users.create({
       email,
-      password: hashPassword,
+      password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
       firstname,
       lastname,
     });
@@ -47,7 +45,9 @@ export const registration = async (req, res, next) => {
     });
   } catch (e) {
     console.error(e);
-    next(apiError(400, "Неизвестная ошибка регистрации."));
+    return res
+      .status(400)
+      .json(apiError(400, "Неизвестная ошибка регистрации."));
   }
 };
 
@@ -60,19 +60,16 @@ export const login = async (req, res, next) => {
     });
 
     if (!user) {
-      next(apiError(401, "Ошибка авторизации."));
-      return;
+      return res.status(401).json(apiError(401, "Ошибка авторизации."));
     }
 
     if (user.isLock === true) {
-      next(apiError(403, "Аккаунт заблокирован."));
-      return;
+      return res.status(403).json(apiError(403, "Аккаунт заблокирован."));
     }
 
     const validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) {
-      next(apiError(401, "Ошибка авторизации."));
-      return;
+      return res.status(401).json(apiError(401, "Ошибка авторизации."));
     }
 
     const role = user.isAdmin ? "Admin" : "User";
@@ -87,6 +84,6 @@ export const login = async (req, res, next) => {
     });
   } catch (e) {
     console.log(e);
-    next(apiError(401, "Ошибка авторизации."));
+    return res.status(401).json(apiError(401, "Ошибка авторизации."));
   }
 };

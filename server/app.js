@@ -4,6 +4,7 @@ import handleDefaultError from "./handleError/handleDefaultError.js";
 import authRoute from "./blueprint/auth/authRoute.js";
 import uploadRoute from "./blueprint/uploadImages/uploadRoute.js";
 import categoriesRoute from "./blueprint/categories/categoriesRoute.js";
+import productsRoute from "./blueprint/products/productsRoute.js";
 
 const app = express();
 app.use(cors());
@@ -13,11 +14,12 @@ app.use(express.json());
 
 // Image
 app.use("/uploads", express.static("uploads"));
-app.use("/api/uploads", uploadRoute);
+app.use("/api", uploadRoute);
 
 // Auth
-app.use("/api/auth", authRoute);
-app.use("/api/categories", categoriesRoute);
+app.use("/api", authRoute);
+app.use("/api", categoriesRoute);
+app.use("/api", productsRoute);
 
 // Handle error
 
