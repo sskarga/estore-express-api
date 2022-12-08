@@ -1,17 +1,8 @@
 import express from "express";
 import multer from "multer";
+import { checkAuthAdminMiddleware } from "../../middleware/checkAuth.middleware.js";
 
 const router = express.Router();
-
-// Хранилище
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "uploads/img");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, file.originalname);
-//   },
-// });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,7 +35,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter }).single("image");
 
-router.post("/uploads", upload, (req, res) => {
+router.post("/uploads", checkAuthAdminMiddleware, upload, (req, res) => {
   let filedata = req.file;
 
   if (!filedata) {

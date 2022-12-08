@@ -87,3 +87,74 @@ export const login = async (req, res, next) => {
     return res.status(401).json(apiError(401, "Ошибка авторизации."));
   }
 };
+
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const user = await Users.findByPk(req.user.id);
+    user.password = null;
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json(apiError(400, "Неизвестная ошибка."));
+  }
+};
+
+export const updateMyProfile = async (req, res, next) => {
+  try {
+    const user = await Users.findByPk(req.user.id);
+
+    user.firstname = req.body.firstname;
+    user.lastname = req.body.lastname;
+    user.phone = req.body.phone;
+    user.country = req.body.country;
+    user.city = req.body.city;
+    user.address = req.body.address;
+    user.note = req.body.note;
+
+    const userId = await Users.update(user, {
+      where: { id: user.id },
+    });
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json(apiError(400, "Неизвестная ошибка."));
+  }
+};
+
+export const myPasswordChange = async (req, res, next) => {
+  try {
+    const user = await Users.findByPk(req.user.id);
+
+    const validPassword = bcrypt.compareSync(
+      req.body.oldPassword,
+      user.password
+    );
+    if (!validPassword) {
+      return res.status(400).json(apiError(400, "Ошибка пароли не совпадают."));
+    }
+
+    user.password = bcrypt.hashSync(
+      req.body.newPassword,
+      bcrypt.genSaltSync(10)
+    );
+
+    const userId = await Users.update(user, {
+      where: { id: user.id },
+    });
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json(apiError(400, "Неизвестная ошибка."));
+  }
+};

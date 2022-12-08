@@ -7,6 +7,13 @@ export const checkAuthMiddleware = function (req, res, next) {
   }
 
   try {
+    if (!req.headers.authorization) {
+      return res.status(401).json({
+        success: false,
+        message: "Пользователь не авторизован",
+      });
+    }
+
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
       return res.status(401).json({
@@ -14,6 +21,7 @@ export const checkAuthMiddleware = function (req, res, next) {
         message: "Пользователь не авторизован",
       });
     }
+
     req.user = jwt.verify(token, config.JWT_SECRET);
     next();
   } catch (e) {
@@ -32,6 +40,13 @@ export const checkAuthAndAccessByRoleMiddleware = function (roles) {
     }
 
     try {
+      if (!req.headers.authorization) {
+        return res.status(401).json({
+          success: false,
+          message: "Пользователь не авторизован",
+        });
+      }
+
       const token = req.headers.authorization.split(" ")[1];
       if (!token) {
         return res.status(401).json({
@@ -57,6 +72,10 @@ export const checkAuthAndAccessByRoleMiddleware = function (roles) {
       });
     }
   };
+};
+
+export const checkAuthAdminMiddleware = function () {
+  return checkAuthAndAccessByRoleMiddleware("Admin");
 };
 
 export const checkAuthOrSkipMiddleware = function (req, res, next) {

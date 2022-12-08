@@ -1,7 +1,19 @@
 import express from "express";
-import { login, registration } from "./authController.js";
-import { validationLogin, validationRegister } from "./authValidation.js";
+import {
+  login,
+  registration,
+  getMyProfile,
+  updateMyProfile,
+  myPasswordChange,
+} from "./authController.js";
+import {
+  validationLogin,
+  validationRegister,
+  validationUpdateProfile,
+  validationUpdateProfilePassword,
+} from "./authValidation.js";
 import handleValidationError from "../../handleError/handleValidationError.js";
+import { checkAuthMiddleware } from "../../middleware/checkAuth.middleware.js";
 
 const router = express.Router();
 
@@ -12,7 +24,20 @@ router.post(
   registration
 );
 router.post("/auth/login", validationLogin, handleValidationError, login);
-// router.get('/profile', authMiddleware, profile)
-// router.post('/profile', authMiddleware, validationProfile, handleValidationError, updateProfile)
+router.get("/auth/me", checkAuthMiddleware, getMyProfile);
+router.post(
+  "/auth/me",
+  checkAuthMiddleware,
+  validationUpdateProfile,
+  handleValidationError,
+  updateMyProfile
+);
+router.post(
+  "/auth/me/password",
+  checkAuthMiddleware,
+  validationUpdateProfilePassword,
+  handleValidationError,
+  myPasswordChange
+);
 
 export default router;

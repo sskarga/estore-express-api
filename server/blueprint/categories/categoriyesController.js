@@ -5,7 +5,7 @@ const { Categories } = sequelize.models;
 
 export const getCategories = async (req, res, next) => {
   try {
-    const { count, rows } = await Products.findAndCountAll({
+    const { count, rows } = await Categories.findAndCountAll({
       order: [
         // Сортировка по заголовку
         ["title"],

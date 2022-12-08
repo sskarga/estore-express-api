@@ -9,7 +9,7 @@ export const getProducts = async (req, res, next) => {
     const queryOffset = parseInt(req.query.offset) || 0;
 
     let queryWhere = {};
-    if (req.user.isGuest) {
+    if (!req.user.isAdmin) {
       queryWhere = { isEnabled: true };
     }
 
@@ -39,7 +39,7 @@ export const getProductsByCategoryId = async (req, res, next) => {
     const queryOffset = parseInt(req.query.offset) || 0;
 
     let queryWhere = { CategoryId: id };
-    if (req.user.isGuest) {
+    if (!req.user.isAdmin) {
       queryWhere = {
         CategoryId: id,
         isEnabled: true,
@@ -68,8 +68,19 @@ export const getProductsByCategoryId = async (req, res, next) => {
 export const getProductById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const product = (await Products.findByPk(id)) || {};
-    res.status(200).json(product);
+    const product = await Products.findByPk(id);
+
+    if (product) {
+      if (req.user.isAdmin) {
+        return res.status(200).json(product);
+      }
+
+      if (product.isEnabled) {
+        return res.status(200).json(product);
+      }
+    }
+
+    res.status(404).json(apiError(404, "Продукт не найден"));
   } catch (err) {
     next(err);
   }
