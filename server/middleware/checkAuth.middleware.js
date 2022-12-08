@@ -23,6 +23,9 @@ export const checkAuthMiddleware = function (req, res, next) {
     }
 
     req.user = jwt.verify(token, config.JWT_SECRET);
+    req.user.isGuest = false;
+    req.user.isAdmin = req.user.role === "Admin";
+
     next();
   } catch (e) {
     console.log(e);

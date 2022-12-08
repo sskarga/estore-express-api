@@ -19,7 +19,7 @@ export const validationLogin = [
 export const validationUpdateProfile = [
   body("firstname", "Укажите имя").not().isEmpty().trim().escape(),
   body("lastname", "Укажите имя").not().isEmpty().trim().escape(),
-  body("phone", "Некоректный номер телефона").optional().isMobilePhone,
+  body("phone", "Некоректный номер телефона").optional().isMobilePhone(),
   body("country", "Заполните поле страна")
     .optional()
     .trim()
