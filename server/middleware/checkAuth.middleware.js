@@ -74,10 +74,6 @@ export const checkAuthAndAccessByRoleMiddleware = function (roles) {
   };
 };
 
-export const checkAuthAdminMiddleware = function () {
-  return checkAuthAndAccessByRoleMiddleware("Admin");
-};
-
 export const checkAuthOrSkipMiddleware = function (req, res, next) {
   if (req.method === "OPTIONS") {
     next();

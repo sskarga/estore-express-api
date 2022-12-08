@@ -10,7 +10,7 @@ import {
 
 import handleValidationError from "../../handleError/handleValidationError.js";
 import idValidation from "../../utils/idValidation.js";
-import { checkAuthAdminMiddleware } from "../../middleware/checkAuth.middleware.js";
+import { checkAuthAndAccessByRoleMiddleware } from "../../middleware/checkAuth.middleware.js";
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ router.get("/categories/:id", idValidation, getCategoryById);
 
 router.post(
   "/categories",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   validationCategory,
   handleValidationError,
   createCategory
@@ -27,7 +27,7 @@ router.post(
 
 router.post(
   "/categories/:id",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   idValidation,
   validationCategory,
   handleValidationError,
@@ -36,7 +36,7 @@ router.post(
 
 router.delete(
   "/categories/:id",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   idValidation,
   deleteCategoryById
 );

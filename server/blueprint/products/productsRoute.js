@@ -11,7 +11,7 @@ import {
 
 import {
   checkAuthOrSkipMiddleware,
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware,
 } from "../../middleware/checkAuth.middleware.js";
 
 import handleValidationError from "../../handleError/handleValidationError.js";
@@ -25,7 +25,7 @@ router.get("/category/:id/products", idValidation, getProductsByCategoryId);
 
 router.post(
   "/products",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   validationProduct,
   handleValidationError,
   createProduct
@@ -33,7 +33,7 @@ router.post(
 
 router.post(
   "/products/:id",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   idValidation,
   validationProduct,
   handleValidationError,
@@ -42,7 +42,7 @@ router.post(
 
 router.delete(
   "/products/:id",
-  checkAuthAdminMiddleware,
+  checkAuthAndAccessByRoleMiddleware("Admin"),
   idValidation,
   deleteProductById
 );

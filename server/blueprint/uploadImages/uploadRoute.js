@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { checkAuthAdminMiddleware } from "../../middleware/checkAuth.middleware.js";
+import { checkAuthAndAccessByRoleMiddleware } from "../../middleware/checkAuth.middleware.js";
 
 const router = express.Router();
 
@@ -35,18 +35,23 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter }).single("image");
 
-router.post("/uploads", checkAuthAdminMiddleware, upload, (req, res) => {
-  let filedata = req.file;
+router.post(
+  "/uploads",
+  checkAuthAndAccessByRoleMiddleware("Admin"),
+  upload,
+  (req, res) => {
+    let filedata = req.file;
 
-  if (!filedata) {
-    return res.status(400).json(apiError(400, "Ошибка при загрузке файла"));
-  } else {
-    return res.status(200).json({
-      success: true,
-      url: `/uploads/img/${filedata.filename}`,
-    });
+    if (!filedata) {
+      return res.status(400).json(apiError(400, "Ошибка при загрузке файла"));
+    } else {
+      return res.status(200).json({
+        success: true,
+        url: `/uploads/img/${filedata.filename}`,
+      });
+    }
   }
-});
+);
 
 // <form action="api/uploads?name=cat02" method="post" enctype="multipart/form-data">
 //  <label>Файл</label><br>
