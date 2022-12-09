@@ -5,6 +5,42 @@ const { Orders, OrdersItems, Products } = sequelize.models;
 
 export const getOrdersAll = async (req, res, next) => {
   try {
+    const isAdmin = req.user.isAdmin;
+    const userId = req.user.id;
+
+    const queryLimit = parseInt(req.query.limit) || 25;
+    const queryOffset = parseInt(req.query.offset) || 0;
+
+    let queryWhere = {};
+    if (!isAdmin) {
+      queryWhere = { UserId: userId };
+    }
+
+    const { count, rows } = await Orders.findAndCountAll({
+      where: queryWhere,
+      order: [["createdAt", "DESC"]],
+      offset: queryOffset,
+      limit: queryLimit,
+      attributes: [
+        "id",
+        "deliveryCountry",
+        "deliveryCity",
+        "deliveryAddress",
+        "isPaid",
+        "isDelivery",
+        "totalPrice",
+        "createdAt",
+        "UserId",
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count,
+      limit: queryLimit,
+      offset: queryOffset,
+      data: rows,
+    });
   } catch (err) {
     next(err);
   }
@@ -12,6 +48,19 @@ export const getOrdersAll = async (req, res, next) => {
 
 export const getOrdersById = async (req, res, next) => {
   try {
+    const id = req.params.id;
+    const isAdmin = req.user.isAdmin;
+    const userId = req.user.id;
+
+    const order = await Orders.findByPk(id);
+
+    if (!isAdmin) {
+      if (order.UserId !== userId) {
+        return res.status(403).json(apiError(403, "Доступ запрещен."));
+      }
+    }
+
+    return res.status(200).json(order);
   } catch (err) {
     next(err);
   }
@@ -19,6 +68,12 @@ export const getOrdersById = async (req, res, next) => {
 
 export const createOrders = async (req, res, next) => {
   try {
+    let customerId = req.user.id;
+
+    if (req.user.isAdmin && req.body.customerId) {
+      customerId = req.body.customerId;
+    }
+
     const items = req.body.products;
     const {
       deliveryPhone,
@@ -29,7 +84,7 @@ export const createOrders = async (req, res, next) => {
     } = req.body;
 
     const orderNew = await Orders.create({
-      UserId: req.user.id,
+      UserId: customerId,
       deliveryPhone,
       deliveryCountry,
       deliveryCity,
@@ -131,6 +186,27 @@ export const createOrders = async (req, res, next) => {
 
 export const updateOrders = async (req, res, next) => {
   try {
+    const { isPaid, paidAt, isDelivery, deliveryAt, note } = req.body;
+
+    const updateCount = await Orders.update(
+      {
+        isPaid: isPaid || false,
+        paidAt: paidAt,
+        isDelivery: isDelivery || false,
+        deliveryAt: deliveryAt,
+        note,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      update: updateCount,
+    });
   } catch (err) {
     next(err);
   }
@@ -138,6 +214,14 @@ export const updateOrders = async (req, res, next) => {
 
 export const deleteOrders = async (req, res, next) => {
   try {
+    const id = req.params.id;
+    const countDelete = await Orders.destroy({
+      where: { id },
+    });
+    res.status(200).json({
+      success: true,
+      delete: countDelete,
+    });
   } catch (err) {
     next(err);
   }

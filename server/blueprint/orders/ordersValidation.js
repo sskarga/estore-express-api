@@ -21,4 +21,7 @@ export const validationCreateOrderItems = [
     .isLength({ max: 250 }),
   body("products.*.id").isNumeric({ min: 0, max: 99999 }),
   body("products.*.qty").isNumeric({ min: 0, max: 99999 }),
+  body("customerId", "Укажите категорию")
+    .optional()
+    .isNumeric({ min: 0, max: 99999 }),
 ];
