@@ -1,5 +1,6 @@
 import sequelize from "../../../db.sequelize.js";
 import { apiError } from "../../handleError/apiError.js";
+import { updateTotalPriceByOrderId } from "./ordersPriceHelper.js";
 
 const { Orders, OrdersItems, Products } = sequelize.models;
 
@@ -60,7 +61,16 @@ export const getOrdersById = async (req, res, next) => {
       }
     }
 
-    return res.status(200).json(order);
+    let items = [];
+    if (!order) {
+      items = await OrdersItems.findAll({
+        where: {
+          OrderId: id,
+        },
+      });
+    }
+
+    return res.status(200).json(order, items);
   } catch (err) {
     next(err);
   }
@@ -125,6 +135,12 @@ export const createOrders = async (req, res, next) => {
         // Price
         price = price + productPrice * productQty;
 
+        // TODO: add count order product
+        // const john = await User.create({ name: 'John', age: 98 })
+        // const incrementResult = await john.increment('age', { by: 2 })
+
+        //await Products.increment("numOrders", {by: productQty, where: {id: productId});
+
         basket.push({
           OrderId: orderNew.id,
           productId,
@@ -139,24 +155,7 @@ export const createOrders = async (req, res, next) => {
 
     // Query update price and add product items basket to order
     await OrdersItems.bulkCreate(basket);
-
-    const taxPrice = 0;
-    const deliveryPrice = 0;
-    const totalPrice = price + taxPrice + deliveryPrice;
-
-    await Orders.update(
-      {
-        price,
-        taxPrice,
-        deliveryPrice,
-        totalPrice,
-      },
-      {
-        where: {
-          id: orderNew.id,
-        },
-      }
-    );
+    await updateTotalPriceByOrderId(orderNew.id, price);
 
     // Responce
     const responceOrder = {

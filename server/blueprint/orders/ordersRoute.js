@@ -3,6 +3,8 @@ import {
   getOrdersAll,
   getOrdersById,
   createOrders,
+  updateOrders,
+  deleteOrders,
 } from "./ordersController.js";
 
 import { getOrdersItemsByOrderId } from "./ordersItemsController.js";
@@ -52,32 +54,32 @@ router.get(
   getOrdersItemsByOrderId
 );
 
-router.post(
-  "/orders/:id/items",
-  checkAuthAndAccessByRoleMiddleware("Admin"),
-  idValidation,
-  createtOrdersItems
-);
+// router.post(
+//   "/orders/:id/items",
+//   checkAuthAndAccessByRoleMiddleware("Admin"),
+//   idValidation,
+//   createtOrdersItems
+// );
 
-router.get(
-  "/orders-items/:id",
-  checkAuthAndAccessByRoleMiddleware("Admin"),
-  idValidation,
-  getOrdersItemsById
-);
+// router.get(
+//   "/orders-items/:id",
+//   checkAuthAndAccessByRoleMiddleware("Admin"),
+//   idValidation,
+//   getOrdersItemsById
+// );
 
-router.post(
-  "/orders-items/:id",
-  checkAuthAndAccessByRoleMiddleware("Admin"),
-  idValidation,
-  updateOrdersItems
-);
+// router.post(
+//   "/orders-items/:id",
+//   checkAuthAndAccessByRoleMiddleware("Admin"),
+//   idValidation,
+//   updateOrdersItems
+// );
 
-router.delete(
-  "/orders-items/:id",
-  checkAuthAndAccessByRoleMiddleware("Admin"),
-  idValidation,
-  deleteOrdersItems
-);
+// router.delete(
+//   "/orders-items/:id",
+//   checkAuthAndAccessByRoleMiddleware("Admin"),
+//   idValidation,
+//   deleteOrdersItems
+// );
 
 export default router;
